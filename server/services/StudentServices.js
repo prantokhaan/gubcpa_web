@@ -6,6 +6,7 @@ const Marks = require("../models/Marks");
 const Student = require("../models/Student");
 const Team = require("../models/Team");
 const bcrypt = require("bcrypt");
+const TempStudent = require("../models/TempStudent");
 
 
 const allUpcomingIupc = async () => {
@@ -354,19 +355,83 @@ const isStudentIdValid = async (token, studentId) => {
   }
 };
 
+const requestToRegister = async (
+  name,
+  studentId,
+  email,
+  phone,
+  batch,
+  password,
+  idCardUrl
+) => {
+  try {
+    const existingStudent = await Student.findOne({
+      where: { studentId: studentId },
+    });
+
+    if (existingStudent) {
+        console.log("Student with this ID already exists");
+        throw new Error("Student with this ID already exists");
+    }
+
+    const existingEmail = await TempStudent.findOne({
+      where: { email: email },
+    });
+
+    if (existingEmail) {
+        console.log("Email already registered");
+      throw new Error("Email already registered");
+    }
+
+    const existingPhone = await TempStudent.findOne({
+      where: { phone: phone },
+    });
+    if (existingPhone) {
+      console.log("Phone number already registered");
+      throw new Error("Phone number already registered");
+    }
+
+    const existingRequest = await TempStudent.findOne({
+      where: { studentId: studentId },
+    });
+
+    if (existingRequest) {
+        console.log("Registration request already exists");
+      throw new Error("Registration request already exists");
+    }
+
+    // If no existing student or request, create a new registration request
+    const newRequest = await TempStudent.create({
+      name,
+      studentId,
+      email,
+      phone,
+      batch,
+      password,
+      idCardUrl,
+    });
+
+    return newRequest;
+  } catch (err) {
+    // console.error("Error processing registration request:", err);
+    throw new Error(err.message);
+  }
+};
+
 
 module.exports = {
-    allUpcomingIupc,
-    allPastIupc,
-    teamsByIupc,
-    login,
-    singleStudent,
-    editBasicInfo,
-    editOnlineJudges,
-    marksForStudent,
-    classForStudent,
-    contestForStudent,
-    leaderboardForStudent,
-    attendanceForStudent,
-    isStudentIdValid,
-}
+  allUpcomingIupc,
+  allPastIupc,
+  teamsByIupc,
+  login,
+  singleStudent,
+  editBasicInfo,
+  editOnlineJudges,
+  marksForStudent,
+  classForStudent,
+  contestForStudent,
+  leaderboardForStudent,
+  attendanceForStudent,
+  isStudentIdValid,
+  requestToRegister,
+};

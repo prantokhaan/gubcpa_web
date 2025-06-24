@@ -11,6 +11,9 @@ import {
   FaKey,
   FaSignOutAlt,
   FaUser,
+  FaCalendarPlus,
+  FaClipboardList,
+  FaUsersCog,
 } from "react-icons/fa";
 
 const Sidebar = () => {
@@ -32,10 +35,14 @@ const Sidebar = () => {
     { name: "Teacher List", path: "/teacher-list", icon: FaUsers },
     { name: "Approve Student", path: "/approve-student", icon: FaUserCheck },
     { name: "Change Password", path: "/change-password", icon: FaKey },
-    { name: "Add Upcoming IUPC", path: "/add-upcoming-iupc", icon: FaUserPlus },
-    { name: "All IUPC", path: "/all-iupc", icon: FaListAlt },
-    { name: "Add Teams To IUPC", path: "/add-teams-to-iupc", icon: FaListAlt },
-    { name: "All Teams", path: "/all-teams", icon: FaListAlt },
+    {
+      name: "Add Upcoming IUPC",
+      path: "/add-upcoming-iupc",
+      icon: FaCalendarPlus,
+    },
+    { name: "All IUPC", path: "/all-iupc", icon: FaClipboardList },
+    { name: "Add Teams To IUPC", path: "/add-teams-to-iupc", icon: FaUsersCog },
+    { name: "All Teams", path: "/all-teams", icon: FaUsersCog },
   ];
 
   return (

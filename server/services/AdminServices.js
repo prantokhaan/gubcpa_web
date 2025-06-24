@@ -6,6 +6,7 @@ const Team = require("../models/Team");
 const bcrypt = require("bcrypt");
 const {Op} = require("sequelize");
 const { desc } = require("framer-motion/client");
+const TempStudent = require("../models/TempStudent");
 
 
 const createAdmin = async (name, email, phone, password) => {
@@ -462,27 +463,78 @@ const teamsByIupcId = async (iupcId) => {
     }
 }
 
-module.exports = {
-    createAdmin,
-    login,
-    createTeacher,
-    createStudent,
-    allStudents,
-    changePasswordStudent,
-    editStudent,
-    changePasswordTeacher,
-    removeStudent,
-    singleStudentById,
-    allTeachers,
-    removeTeacher,
-    editTeacher,
-    singleTeacherById,
-    changeAdminPassword,
-    addIupc,
-    allIupc,
-    changeIupcStatus,
-    addTeamsToIupc,
-    editIUPC,
-    deleteIUPC,
-    teamsByIupcId
+const allTempStudents = async () => {
+    try{
+        const tempStudents = await TempStudent.findAll();
+
+        return tempStudents;
+    } catch (err) {
+        console.error("Error fetching temporary students:", err);
+        throw new Error("Failed to fetch temporary students");
+    }
 }
+
+const approveStudent = async(id) => {
+    try{
+        const tempStudent = await TempStudent.findByPk(id);
+        if(!tempStudent) {
+            throw new Error("Temporary student not found");
+        }
+
+        const newStudent = await createStudent(
+            tempStudent.name,
+            tempStudent.email,
+            tempStudent.phone,
+            tempStudent.batch,
+            tempStudent.studentId,
+            tempStudent.password
+        );
+        await tempStudent.destroy();
+        return newStudent;
+    } catch (err) {
+        console.error("Error approving student:", err);
+        throw new Error("Failed to approve student");
+    }
+}
+
+const rejectTempStudent = async(id) => {
+    try{
+        const tempStudent = await TempStudent.findByPk(id);
+        if(!tempStudent) {
+            throw new Error("Temporary student not found");
+        }
+        await tempStudent.destroy();
+        return { message: "Temporary student rejected successfully" };
+    } catch (err) {
+        console.error("Error rejecting temporary student:", err);
+        throw new Error("Failed to reject temporary student");
+    }
+}
+
+module.exports = {
+  createAdmin,
+  login,
+  createTeacher,
+  createStudent,
+  allStudents,
+  changePasswordStudent,
+  editStudent,
+  changePasswordTeacher,
+  removeStudent,
+  singleStudentById,
+  allTeachers,
+  removeTeacher,
+  editTeacher,
+  singleTeacherById,
+  changeAdminPassword,
+  addIupc,
+  allIupc,
+  changeIupcStatus,
+  addTeamsToIupc,
+  editIUPC,
+  deleteIUPC,
+  teamsByIupcId,
+  allTempStudents,
+  approveStudent,
+  rejectTempStudent
+};

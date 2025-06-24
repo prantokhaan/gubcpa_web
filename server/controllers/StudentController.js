@@ -1,6 +1,8 @@
 const { put } = require("../routes/StudentRoutes");
-const { allUpcomingIupc, allPastIupc, teamsByIupc, login, singleStudent, editBasicInfo, editOnlineJudges, marksForStudent, classForStudent, contestForStudent, leaderboardForStudent, attendanceForStudent, isStudentIdValid } = require("../services/StudentServices");
+const { allUpcomingIupc, allPastIupc, teamsByIupc, login, singleStudent, editBasicInfo, editOnlineJudges, marksForStudent, classForStudent, contestForStudent, leaderboardForStudent, attendanceForStudent, isStudentIdValid, requestToRegister } = require("../services/StudentServices");
 const jsonwebtoken = require("jsonwebtoken");
+const axios = require("axios");
+const FormData = require("form-data");
 
 const getAllUpcomingIupc = async (req, res) => {
     try{
@@ -260,6 +262,63 @@ const studentVerification = async (req, res) => {
     }
 }
 
+const registrationRequest = async (req, res) => {
+  const { name, studentId, email, phone, batch, password, idCardUrl } =
+    req.body;
+
+  try {
+    const request = await requestToRegister(
+      name,
+      studentId,
+      email,
+      phone,
+      batch,
+      password,
+      idCardUrl
+    );
+    res.status(201).json({
+      message: "Registration request created successfully",
+      data: request,
+    });
+  } catch (err) {
+    console.error("Error creating registration request:", err.message);
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+};
+
+
+const uploadImageToImgbb = async (req, res) => {
+  const { imageBase64 } = req.body;
+
+  const apiKey = "edc5b57f7a5277b6741fa3dc989a874e";
+  const url = `https://api.imgbb.com/1/upload?key=${apiKey}`;
+
+  try {
+    // Prepare form data
+    const formData = new FormData();
+    formData.append("image", imageBase64);
+
+    const response = await axios.post(url, formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+    });
+
+    res.status(201).json({
+      message: "Image uploaded successfully",
+      data: response.data,
+    });
+  } catch (err) {
+    console.error("Error uploading image:", err);
+    res.status(500).json({
+      message: "Failed to upload image",
+      error: err.message,
+    });
+  }
+};
+
 
 module.exports = {
   getAllUpcomingIupc,
@@ -274,5 +333,7 @@ module.exports = {
   getContestForStudent,
   getLeaderboard,
   getAttendanceForStudent,
-  studentVerification
+  studentVerification,
+  registrationRequest,
+  uploadImageToImgbb,
 };

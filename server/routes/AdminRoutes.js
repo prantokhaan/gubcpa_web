@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerAdmin, loginAdmin, addTeacher, addStudent, getAllStudents, putStudentPassword, putStudent, getSingleStudentById, deleteStudent, getAllTeachers, deleteTeacher, putTeacherPassword, putTeacher, getSingleTeacherById, putAdminPassword, createIupc, getAllIUPC, putIUPCStatus, removeIUPC, putIUPC, createTeamsToIUPC, getTeamsByIupcId } = require('../controllers/AdminController');
+const { registerAdmin, loginAdmin, addTeacher, addStudent, getAllStudents, putStudentPassword, putStudent, getSingleStudentById, deleteStudent, getAllTeachers, deleteTeacher, putTeacherPassword, putTeacher, getSingleTeacherById, putAdminPassword, createIupc, getAllIUPC, putIUPCStatus, removeIUPC, putIUPC, createTeamsToIUPC, getTeamsByIupcId, getAllTempStudents, putApproveStudent, deleteTempStudents } = require('../controllers/AdminController');
 
 const router = express.Router();
 
@@ -25,5 +25,8 @@ router.delete('/deleteIupc/:id', removeIUPC);
 router.put('/editIupc/:id', putIUPC);
 router.post('/createIupcTeam/', createTeamsToIUPC);
 router.get('/teamsByIupcId/:id', getTeamsByIupcId);
+router.get('/getAllTempStudents', getAllTempStudents);
+router.put('/approveStudent/:id', putApproveStudent);
+router.delete('/deleteTempStudent/:id', deleteTempStudents);
 
 module.exports = router;

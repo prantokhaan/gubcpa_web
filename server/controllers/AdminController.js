@@ -1,5 +1,5 @@
 const jsonwebtoken = require("jsonwebtoken");
-const { createAdmin, login, createTeacher, createStudent, allStudents, changePasswordStudent, singleStudentById, editStudent, removeStudent, allTeachers, removeTeacher, changePasswordTeacher, editTeacher, singleTeacherById, changeAdminPassword, addIupc, allIupc, changeIupcStatus, addTeamsToIupc, editIUPC, deleteIUPC, teamsByIupcId } = require("../services/AdminServices");
+const { createAdmin, login, createTeacher, createStudent, allStudents, changePasswordStudent, singleStudentById, editStudent, removeStudent, allTeachers, removeTeacher, changePasswordTeacher, editTeacher, singleTeacherById, changeAdminPassword, addIupc, allIupc, changeIupcStatus, addTeamsToIupc, editIUPC, deleteIUPC, teamsByIupcId, allTempStudents, approveStudent, rejectTempStudent } = require("../services/AdminServices");
 
 const registerAdmin = async (req, res) => {
     const {name, email, phone, password} = req.body;
@@ -459,6 +459,54 @@ const removeIUPC = async (req, res) => {
     }
 }
 
+const getAllTempStudents = async (req, res) => {
+    try {
+        const students = await allTempStudents();
+        res.status(200).json({
+            message: "Students fetched successfully",
+            students: students
+        });
+    } catch (err) {
+        console.error("Error fetching students:", err);
+        res.status(500).json({
+            message: "Failed to fetch students"
+        });
+    }
+}
+
+const putApproveStudent = async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        const student = await approveStudent(id);
+        res.status(200).json({
+            message: "Student approved successfully",
+            student: student
+        });
+    } catch (err) {
+        console.error("Error approving student:", err);
+        res.status(500).json({
+            message: "Failed to approve student"
+        });
+    }
+}
+
+const deleteTempStudents = async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        await rejectTempStudent(id);
+        res.status(200).json({
+            message: "Temporary student deleted successfully"
+        });
+    } catch (err) {
+        console.error("Error deleting temporary student:", err);
+        res.status(500).json({
+            message: "Failed to delete temporary student"
+        });
+    }
+}
+
 module.exports = {
     registerAdmin,
     loginAdmin,
@@ -481,5 +529,8 @@ module.exports = {
     createTeamsToIUPC,
     putIUPC,
     removeIUPC,
-    getTeamsByIupcId
+    getTeamsByIupcId,
+    getAllTempStudents,
+    putApproveStudent,
+    deleteTempStudents
 };
