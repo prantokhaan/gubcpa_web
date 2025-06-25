@@ -39,3 +39,9 @@ SHOW INDEXES FROM Teams WHERE Non_unique = 0;
 
 ALTER TABLE Teams
 DROP INDEX iupcId;  
+
+
+alter table TempStudents
+add column address varchar(255)
+
+select * from TempStudents;

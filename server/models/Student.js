@@ -88,6 +88,10 @@ const Student = sequelize.define("Student", {
         validate: {
             is: /^[0-9]+$/i
         }
+    },
+    address: {
+        type: DataTypes.STRING,
+        allowNull: true,
     }
 });
 

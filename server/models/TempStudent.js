@@ -89,6 +89,10 @@ const TempStudent = sequelize.define("TempStudent", {
       is: /^[0-9]+$/i,
     },
   },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   idCardUrl: {
     type: DataTypes.STRING,
     allowNull: false,

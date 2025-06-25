@@ -362,6 +362,7 @@ const requestToRegister = async (
   phone,
   batch,
   password,
+  address,
   idCardUrl
 ) => {
   try {
@@ -408,6 +409,7 @@ const requestToRegister = async (
       phone,
       batch,
       password,
+      address,
       idCardUrl,
     });
 

@@ -263,7 +263,7 @@ const studentVerification = async (req, res) => {
 }
 
 const registrationRequest = async (req, res) => {
-  const { name, studentId, email, phone, batch, password, idCardUrl } =
+  const { name, studentId, email, phone, batch, password,currentAddress, idCardUrl } =
     req.body;
 
   try {
@@ -274,6 +274,7 @@ const registrationRequest = async (req, res) => {
       phone,
       batch,
       password,
+      currentAddress,
       idCardUrl
     );
     res.status(201).json({
