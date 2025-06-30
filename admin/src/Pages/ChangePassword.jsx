@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../Shared/Sidebar";
-import axios from "axios";
+import axios from "../api/axios";
 import Swal from "sweetalert2";
 
 const AdminChangePassword = () => {
@@ -37,7 +37,7 @@ const AdminChangePassword = () => {
 
     try {
       await axios.put(
-        `http://localhost:5000/admin/changeAdminPassword/${adminId}`,
+        `/admin/changeAdminPassword/${adminId}`,
         {
           oldPassword,
           newPassword,

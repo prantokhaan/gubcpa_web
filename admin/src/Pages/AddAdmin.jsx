@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaUser, FaPhone, FaEnvelope, FaLock, FaPlus } from "react-icons/fa";
 import Sidebar from "../Shared/Sidebar";
 import Swal from "sweetalert2";
+import axios from "../api/axios";
 
 const AddAdmin = () => {
   const [formData, setFormData] = useState({
@@ -62,17 +63,12 @@ const AddAdmin = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:5000/admin/createAdmin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await axios.post(
+        "/admin/createAdmin",
+        formData
+      );
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         Swal.fire({
           icon: "success",
           title: "Admin Added",
@@ -90,7 +86,7 @@ const AddAdmin = () => {
         Swal.fire({
           icon: "error",
           title: "Failed",
-          text: data.message || "Failed to add admin.",
+          text: response.data?.message || "Failed to add admin.",
         });
       }
     } catch (error) {
@@ -98,7 +94,9 @@ const AddAdmin = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Something went wrong. Please try again.",
+        text:
+          error.response?.data?.message ||
+          "Something went wrong. Please try again.",
       });
     } finally {
       setIsSubmitting(false);

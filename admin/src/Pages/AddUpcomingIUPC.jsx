@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import { FaCalendarAlt, FaLink, FaInfoCircle, FaPlus } from "react-icons/fa";
 import Sidebar from "../Shared/Sidebar";
 
@@ -68,10 +68,7 @@ const AddUpcomingIUPC = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        const response = await axios.post(
-          "http://localhost:5000/admin/create-iupc",
-          formData
-        );
+        const response = await axios.post("/admin/create-iupc", formData);
         Swal.fire({
           icon: "success",
           title: "Success!",

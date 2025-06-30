@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import { FaUsers, FaUser, FaTrophy, FaCheck, FaPlus } from "react-icons/fa";
 import Sidebar from "../Shared/Sidebar";
 import Swal from "sweetalert2";
@@ -23,7 +23,7 @@ const AddTeamToIUPC = () => {
   useEffect(() => {
     // Fetch IUPC options from API
     axios
-      .get("http://localhost:5000/admin/getAllIUPC")
+      .get("/admin/getAllIUPC")
       .then((response) => {
         // Extract iupcs array from the response
         if (response.data && response.data.iupcs) {
@@ -67,10 +67,7 @@ const AddTeamToIUPC = () => {
     if (Object.keys(validationErrors).length === 0) {
       try {
         // Sending data to create IUPC team
-        await axios.post(
-          "http://localhost:5000/admin/createIupcTeam",
-          formData
-        );
+        await axios.post("/admin/createIupcTeam", formData);
 
         // Show success message
         Swal.fire({

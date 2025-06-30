@@ -10,7 +10,7 @@ import {
 import { MdDoneAll } from "react-icons/md";
 import Sidebar from "../Shared/Sidebar";
 import Swal from "sweetalert2";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust the path to your axios instance
 
 const AllIUPC = () => {
   const [iupcContests, setIupcContests] = useState([]);
@@ -31,7 +31,7 @@ const AllIUPC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/admin/getAllIUPC")
+      .get("/admin/getAllIUPC")
       .then((res) => {
         setIupcContests(res.data.iupcs);
       })
@@ -64,7 +64,7 @@ const AllIUPC = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .put(`http://localhost:5000/admin/changeIupcStatus/${id}`, {
+          .put(`/admin/changeIupcStatus/${id}`, {
             status: "Past",
           })
           .then(() => {
@@ -96,7 +96,7 @@ const AllIUPC = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:5000/admin/deleteIUPC/${id}`)
+          .delete(`/admin/deleteIUPC/${id}`)
           .then(() => {
             setIupcContests((prev) => prev.filter((c) => c.id !== id));
             Swal.fire("Deleted!", "The contest has been deleted.", "success");
@@ -119,7 +119,7 @@ const AllIUPC = () => {
 
   const handleUpdateContest = () => {
     axios
-      .put(`http://localhost:5000/admin/editIUPC/${editingContest.id}`, {
+      .put(`/admin/editIUPC/${editingContest.id}`, {
         name: editingContest.name,
         contestDate: editingContest.contestDate,
         registrationDeadline: editingContest.registrationDeadline,
@@ -228,7 +228,7 @@ const AllIUPC = () => {
     }
 
     axios
-      .put(`http://localhost:5000/admin/editIUPCTeam/${selectedContest.id}`, {
+      .put(`/admin/editIUPCTeam/${selectedContest.id}`, {
         teams: teamsData,
       })
       .then(() => {

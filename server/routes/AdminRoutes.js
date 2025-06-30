@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerAdmin, loginAdmin, addTeacher, addStudent, getAllStudents, putStudentPassword, putStudent, getSingleStudentById, deleteStudent, getAllTeachers, deleteTeacher, putTeacherPassword, putTeacher, getSingleTeacherById, putAdminPassword, createIupc, getAllIUPC, putIUPCStatus, removeIUPC, putIUPC, createTeamsToIUPC, getTeamsByIupcId, getAllTempStudents, putApproveStudent, deleteTempStudents } = require('../controllers/AdminController');
+const { registerAdmin, loginAdmin, addTeacher, addStudent, getAllStudents, putStudentPassword, putStudent, getSingleStudentById, deleteStudent, getAllTeachers, deleteTeacher, putTeacherPassword, putTeacher, getSingleTeacherById, putAdminPassword, createIupc, getAllIUPC, putIUPCStatus, removeIUPC, putIUPC, createTeamsToIUPC, getTeamsByIupcId, getAllTempStudents, putApproveStudent, deleteTempStudents, removeIupcTeam, putIUPCTeam, addNewEvent, putEventStatus, putEvent, getAllEvents, removeEvent } = require('../controllers/AdminController');
 
 const router = express.Router();
 
@@ -28,5 +28,12 @@ router.get('/teamsByIupcId/:id', getTeamsByIupcId);
 router.get('/getAllTempStudents', getAllTempStudents);
 router.put('/approveStudent/:id', putApproveStudent);
 router.delete('/deleteTempStudent/:id', deleteTempStudents);
+router.delete('/deleteIupcTeam/:id', removeIupcTeam); 
+router.put('/editIupcTeam/:id', putIUPCTeam);
+router.post('/addEvent', addNewEvent);
+router.put('/changeEventStatus/:id', putEventStatus);
+router.put('/editEvent/:id', putEvent);
+router.get('/getAllEvents', getAllEvents);
+router.delete('/deleteEvent/:id', removeEvent);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import {
   FaEye,
   FaEyeSlash,
@@ -30,7 +30,7 @@ const AdminLogin = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/admin/login", {
+      const response = await axios.post("/admin/login", {
         email,
         password,
       });

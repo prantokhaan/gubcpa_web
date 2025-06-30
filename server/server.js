@@ -13,6 +13,7 @@ app.use(express.json());
 app.use("/admin", require("./routes/AdminRoutes"));
 app.use("/teacher", require("./routes/TeacherRoutes"));
 app.use("/student", require("./routes/StudentRoutes"));
+app.use("/mail", require("./routes/mailRoutes"));
 
 sequelize
     .sync({alter: false})

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllUpcomingIupc, getAllPastIupc, getTeamsByIupc, loginStudent, getSingleStudent, putBasicInfo, putOnlineJudges, getMarksForStudent, getClassForStudent, getContestForStudent, getLeaderboard, getAttendanceForStudent, studentVerification, registrationRequest, uploadImageToImgbb } = require('../controllers/StudentController');
+const { getAllUpcomingIupc, getAllPastIupc, getTeamsByIupc, loginStudent, getSingleStudent, putBasicInfo, putOnlineJudges, getMarksForStudent, getClassForStudent, getContestForStudent, getLeaderboard, getAttendanceForStudent, studentVerification, registrationRequest, uploadImageToImgbb, putPassword, putProfilePicture } = require('../controllers/StudentController');
 const router = express.Router();
 
 router.get('/all-upcoming-iupc', getAllUpcomingIupc);
@@ -17,5 +17,7 @@ router.get('/attendance/:studentId', getAttendanceForStudent);
 router.post('/verify/:studentId', studentVerification);
 router.post('/registration-request', registrationRequest);
 router.post('/upload-image', uploadImageToImgbb);
+router.put("/change-password", putPassword);
+router.put('/update-profile-picture/:studentId', putProfilePicture);
 
 module.exports = router;

@@ -11,7 +11,7 @@ import {
 import Sidebar from "../Shared/Sidebar";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios";
 
 const AddStudent = () => {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ const AddStudent = () => {
       setIsSubmitting(true);
       try {
         const response = await axios.post(
-          "http://localhost:5000/admin/createStudent",
+          "/admin/createStudent",
           {
             name: formData.name,
             studentId: formData.studentId,

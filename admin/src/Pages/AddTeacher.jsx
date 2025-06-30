@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
+import axios from "../api/axios"; // Adjust path if needed
 import {
   FaUser,
   FaGraduationCap,
@@ -65,57 +66,50 @@ const AddTeacher = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      setIsSubmitting(true);
+    if (!validateForm()) return;
 
-      try {
-        const response = await fetch(
-          "http://localhost:5000/admin/createTeacher",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          }
-        );
+    setIsSubmitting(true);
 
-        const data = await response.json();
+    try {
+      const response = await axios.post(
+        "/admin/createTeacher",
+        formData
+      );
 
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: "Teacher added successfully!",
-          });
+      if (response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Success!",
+          text: "Teacher added successfully!",
+        });
 
-          setFormData({
-            name: "",
-            batch: "beginner",
-            phone: "",
-            email: "",
-            password: "",
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: data.message || "Something went wrong!",
-          });
-        }
-      } catch (error) {
+        setFormData({
+          name: "",
+          batch: "beginner",
+          phone: "",
+          email: "",
+          password: "",
+        });
+      } else {
         Swal.fire({
           icon: "error",
-          title: "Network Error",
-          text: "Unable to connect. Please try again later.",
+          title: "Oops...",
+          text: response.data?.message || "Something went wrong!",
         });
-        console.error("Error:", error);
-      } finally {
-        setIsSubmitting(false);
       }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text:
+          error.response?.data?.message ||
+          "Unable to connect. Please try again later.",
+      });
+      console.error("Error:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
 
   return (
     <>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../Shared/Sidebar";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import Swal from "sweetalert2";
 
 const ChangeTeacherPassword = () => {
@@ -25,7 +25,7 @@ const ChangeTeacherPassword = () => {
     setLoading(true);
     try {
       await axios.put(
-        `http://localhost:5000/admin/changeTeacherPassword/${teacherId}`,
+        `/admin/changeTeacherPassword/${teacherId}`,
         { newPassword: password }
       );
 

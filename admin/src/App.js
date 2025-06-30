@@ -20,6 +20,9 @@ import AddUpcomingIUPC from './Pages/AddUpcomingIUPC';
 import AllIUPC from './Pages/AllIUPC';
 import AddTeamToIUPC from './Pages/AddTeamsToIUPC';
 import AllTeams from './Pages/AllTeams';
+import ConfirmedStudents from './Pages/ConfirmedStudent';
+import AddEvent from './Pages/AddEvent';
+import AllEvents from './Pages/AllEvents';
 
 function App() {
   return (
@@ -159,6 +162,33 @@ function App() {
           element={
             <PrivateRoute>
               <AllTeams />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path="/add-event"
+          element={
+            <PrivateRoute>
+              <AddEvent />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path="/all-events"
+          element={
+            <PrivateRoute>
+              <AllEvents />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path="/confirmed-student"
+          element={
+            <PrivateRoute>
+              <ConfirmedStudents />
             </PrivateRoute>
           }
         />

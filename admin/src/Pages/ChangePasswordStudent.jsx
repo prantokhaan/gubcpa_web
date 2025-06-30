@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaLock, FaUnlock } from "react-icons/fa";
 import Sidebar from "../Shared/Sidebar";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import Swal from "sweetalert2";
 
 const ChangePasswordStudent = () => {
@@ -44,7 +44,7 @@ const ChangePasswordStudent = () => {
     setLoading(true);
     try {
       await axios.put(
-        `http://localhost:5000/admin/changeStudentPassword/${studentId}`,
+        `/admin/changeStudentPassword/${studentId}`,
         { newPassword: formData.newPassword }
       );
 

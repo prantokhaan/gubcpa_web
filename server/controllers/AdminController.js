@@ -1,5 +1,5 @@
 const jsonwebtoken = require("jsonwebtoken");
-const { createAdmin, login, createTeacher, createStudent, allStudents, changePasswordStudent, singleStudentById, editStudent, removeStudent, allTeachers, removeTeacher, changePasswordTeacher, editTeacher, singleTeacherById, changeAdminPassword, addIupc, allIupc, changeIupcStatus, addTeamsToIupc, editIUPC, deleteIUPC, teamsByIupcId, allTempStudents, approveStudent, rejectTempStudent } = require("../services/AdminServices");
+const { createAdmin, login, createTeacher, createStudent, allStudents, changePasswordStudent, singleStudentById, editStudent, removeStudent, allTeachers, removeTeacher, changePasswordTeacher, editTeacher, singleTeacherById, changeAdminPassword, addIupc, allIupc, changeIupcStatus, addTeamsToIupc, editIUPC, deleteIUPC, teamsByIupcId, allTempStudents, approveStudent, rejectTempStudent, deleteIupcTeam, editIupcTeam, addEvent, changeEventStatus, editEvent, deleteEvent, allEvents } = require("../services/AdminServices");
 
 const registerAdmin = async (req, res) => {
     const {name, email, phone, password} = req.body;
@@ -507,6 +507,124 @@ const deleteTempStudents = async (req, res) => {
     }
 }
 
+const removeIupcTeam = async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        await deleteIupcTeam(id);
+        res.status(200).json({
+            message: "IUPC team deleted successfully"
+        });
+    } catch (err) {
+        console.error("Error deleting IUPC team:", err);
+        res.status(500).json({
+            message: "Failed to delete IUPC team"
+        });
+    }
+}
+
+const putIUPCTeam = async (req, res) => {
+    const {id} = req.params;
+    const {name, member1, member2, member3, coach, rank, solved} = req.body;
+
+    try {
+        const updatedTeam = await editIupcTeam(id, name, member1, member2, member3, coach, rank, solved);
+        res.status(200).json({
+            message: "IUPC team updated successfully",
+            team: updatedTeam
+        });
+    } catch (err) {
+        console.error("Error updating IUPC team:", err);
+        res.status(500).json({
+            message: "Failed to update IUPC team"
+        });
+    }
+}
+
+const addNewEvent = async (req, res) => {
+    const {title, date, type, status, bgImageLink} = req.body;
+
+    try {
+        const newEvent = await addEvent(title, date, type, status, bgImageLink);
+        res.status(201).json({
+            message: "Event created successfully",
+            event: newEvent
+        });
+    } catch (err) {
+        console.error("Error creating event:", err);
+        res.status(500).json({
+            message: "Failed to create event"
+        });
+    }
+}
+
+const putEventStatus = async (req, res) => {
+    const {id} = req.params;
+    const {status, bgImageLink} = req.body;
+
+    try {
+        const updatedEvent = await changeEventStatus(id, status, bgImageLink);
+        res.status(200).json({
+            message: "Event status updated successfully",
+            event: updatedEvent
+        });
+    } catch (err) {
+        console.error("Error updating event status:", err);
+        res.status(500).json({
+            message: "Failed to update event status"
+        });
+    }
+}
+
+const putEvent = async (req, res) => {
+    const {id} = req.params;
+    const {title, date, type, status, bgImageLink} = req.body;
+
+    try {
+        const updatedEvent = await editEvent(id, title, date, type, status, bgImageLink);
+        res.status(200).json({
+            message: "Event updated successfully",
+            event: updatedEvent
+        });
+    } catch (err) {
+        console.error("Error updating event:", err);
+        res.status(500).json({
+            message: "Failed to update event"
+        });
+    }
+}
+
+const removeEvent = async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        await deleteEvent(id);
+        res.status(200).json({
+            message: "Event deleted successfully"
+        });
+    } catch (err) {
+        console.error("Error deleting event:", err);
+        res.status(500).json({
+            message: "Failed to delete event"
+        });
+    }
+}
+
+const getAllEvents = async (req, res) => {
+    try{
+        const events = await allEvents();
+        res.status(200).json({
+            message: "Events fetched successfully",
+            events: events
+        });
+    }catch(err) {
+        console.error("Error fetching events:", err);
+        res.status(500).json({
+            message: "Failed to fetch events"
+        });
+    }
+}
+
 module.exports = {
     registerAdmin,
     loginAdmin,
@@ -532,5 +650,12 @@ module.exports = {
     getTeamsByIupcId,
     getAllTempStudents,
     putApproveStudent,
-    deleteTempStudents
+    deleteTempStudents,
+    removeIupcTeam,
+    putIUPCTeam,
+    addNewEvent,
+    putEventStatus,
+    putEvent,
+    removeEvent,
+    getAllEvents
 };

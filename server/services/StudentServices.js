@@ -7,6 +7,7 @@ const Student = require("../models/Student");
 const Team = require("../models/Team");
 const bcrypt = require("bcrypt");
 const TempStudent = require("../models/TempStudent");
+const jwt = require("jsonwebtoken");
 
 
 const allUpcomingIupc = async () => {
@@ -40,10 +41,12 @@ const allPastIupc = async () => {
 const teamsByIupc = async (iupcId) => {
     try{
         const teams = await Team.findAll({
-            where: {
-                iupcId: iupcId
-            }
+          where: {
+            iupcId: iupcId,
+          },
+          order: [["rank", "ASC"]],
         });
+          
         return teams;
     }catch(err){
         console.error("Error fetching teams for IUPC:", err);
@@ -340,20 +343,17 @@ const attendanceForStudent = async (studentId) => {
     }
 }
 
-const isStudentIdValid = async (token, studentId) => {
+const isStudentIdValid = (token, studentId) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.id === studentId) {
-      return true;
-    } else {
-      return false;
-    }
+    return decoded.id === studentId;
   } catch (err) {
     console.error("Error validating student ID from token:", err);
-    return false;
+    return false; // If token expired or invalid
   }
 };
+  
 
 const requestToRegister = async (
   name,
@@ -420,6 +420,55 @@ const requestToRegister = async (
   }
 };
 
+const changePassword = async(oldPassword, newPassword, studentId) => {
+    try{
+        const student = await Student.findOne({
+            where: {
+                studentId: studentId
+            }
+        });
+
+        if (!student) {
+            throw new Error("Student not found");
+        }
+
+        const isPasswordValid = await bcrypt.compare(oldPassword, student.password);
+        if (!isPasswordValid) {
+            throw new Error("Incorrect old password");
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        student.password = hashedNewPassword;
+
+        await student.save();
+        return { message: "Password changed successfully" };
+    } catch (err) {
+        console.error("Error changing password:", err);
+        throw new Error("Failed to change password");
+    }
+}
+
+const updateProfilePicture = async (studentId, profilePictureUrl) => {
+    try{
+        const student = await Student.findOne({
+            where: {
+                studentId: studentId
+            }
+        });
+
+        if (!student) {
+            throw new Error("Student not found");
+        }
+
+        student.profilePictureUrl = profilePictureUrl;
+
+        await student.save();
+        return student;
+    } catch (err) {
+        console.error("Error updating profile picture:", err);
+        throw new Error("Failed to update profile picture");
+    }
+};
 
 module.exports = {
   allUpcomingIupc,
@@ -436,4 +485,6 @@ module.exports = {
   attendanceForStudent,
   isStudentIdValid,
   requestToRegister,
+  changePassword,
+  updateProfilePicture,
 };

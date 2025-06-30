@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Shared/Sidebar";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios";
 import Swal from "sweetalert2";
 
 const TeacherList = () => {
@@ -12,9 +12,7 @@ const TeacherList = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/admin/getAllTeachers"
-        );
+        const response = await axios.get("/admin/getAllTeachers");
         if (response.data && response.data.teachers) {
           setTeachers(response.data.teachers);
         } else {
@@ -44,7 +42,7 @@ const TeacherList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/admin/deleteTeacher/${id}`);
+        await axios.delete(`/admin/deleteTeacher/${id}`);
 
         setTeachers((prevTeachers) =>
           prevTeachers.filter((teacher) => teacher.id !== id)

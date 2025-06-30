@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Shared/Sidebar";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import Swal from "sweetalert2";
 
 const EditTeacher = () => {
@@ -20,7 +20,7 @@ const EditTeacher = () => {
     const fetchTeacher = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/admin/getSingleTeacher/${teacherId}`
+          `/admin/getSingleTeacher/${teacherId}`
         );
         if (res.data && res.data.teacher) {
           setTeacher({
@@ -54,7 +54,7 @@ const EditTeacher = () => {
 
     try {
       await axios.put(
-        `http://localhost:5000/admin/editTeacher/${teacherId}`,
+        `/admin/editTeacher/${teacherId}`,
         teacher
       );
       Swal.fire({

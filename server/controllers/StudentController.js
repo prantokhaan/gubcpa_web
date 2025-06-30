@@ -1,5 +1,5 @@
 const { put } = require("../routes/StudentRoutes");
-const { allUpcomingIupc, allPastIupc, teamsByIupc, login, singleStudent, editBasicInfo, editOnlineJudges, marksForStudent, classForStudent, contestForStudent, leaderboardForStudent, attendanceForStudent, isStudentIdValid, requestToRegister } = require("../services/StudentServices");
+const { allUpcomingIupc, allPastIupc, teamsByIupc, login, singleStudent, editBasicInfo, editOnlineJudges, marksForStudent, classForStudent, contestForStudent, leaderboardForStudent, attendanceForStudent, isStudentIdValid, requestToRegister, changePassword, updateProfilePicture } = require("../services/StudentServices");
 const jsonwebtoken = require("jsonwebtoken");
 const axios = require("axios");
 const FormData = require("form-data");
@@ -235,35 +235,56 @@ const getAttendanceForStudent = async (req, res) => {
     }
 }
 
+const putProfilePicture = async (req, res) => {
+    const { studentId } = req.params;
+    const { profilePictureUrl } = req.body;
 
-const studentVerification = async (req, res) => {
-    const {studentId} = req.params;
-    const {token} = req.body;
-
-
-    try{
-        const verify = isStudentIdValid(token, studentId);
-        if(verify){
-            res.status(200).json({
-                message: "Student ID is valid"
-            });
-        }else{
-            res.status(401).json({
-                message: "Unauthorized",
-                error: "Invalid student ID"
-            });
-        }
-    }catch(err){
-        console.error("Error during student verification:", err);
+    try {
+        const student = await updateProfilePicture(
+          studentId,
+          profilePictureUrl
+        );
+        res.status(200).json({
+            message: "Profile picture updated successfully",
+            data: student
+        });
+    } catch (err) {
+        console.error("Error updating profile picture:", err);
         res.status(500).json({
-            message: "Failed to verify student",
+            message: "Failed to update profile picture",
             error: err.message
         });
     }
 }
 
+
+const studentVerification = async (req, res) => {
+  const { studentId } = req.params;
+  const { token } = req.body;
+
+  try {
+    const isValid = await isStudentIdValid(token, studentId);
+
+    if (isValid) {
+      return res.status(200).json({ message: "Student ID is valid" });
+    } else {
+      return res.status(401).json({
+        message: "Unauthorized",
+        error: "Token expired or invalid",
+      });
+    }
+  } catch (err) {
+    console.error("Error during student verification:", err);
+    return res.status(500).json({
+      message: "Failed to verify student",
+      error: err.message,
+    });
+  }
+};
+  
+
 const registrationRequest = async (req, res) => {
-  const { name, studentId, email, phone, batch, password,currentAddress, idCardUrl } =
+  const { name, studentId, email, phone, batch, password, currentAddress, idCardUrl } =
     req.body;
 
   try {
@@ -320,6 +341,26 @@ const uploadImageToImgbb = async (req, res) => {
   }
 };
 
+const putPassword = async(req, res) => {
+    const {oldPassword, newPassword} = req.body;
+    const { studentId } = req.params;
+
+    try{
+        const student = await changePassword(studentId, oldPassword, newPassword);
+        res.status(200).json({
+            message: "Password updated successfully",
+            data: student
+        });
+
+    }catch(err) {
+        console.error("Error updating password:", err);
+        res.status(500).json({
+            message: "Failed to update password",
+            error: err.message
+        });
+    }
+}
+
 
 module.exports = {
   getAllUpcomingIupc,
@@ -337,4 +378,6 @@ module.exports = {
   studentVerification,
   registrationRequest,
   uploadImageToImgbb,
+  putPassword,
+  putProfilePicture,
 };

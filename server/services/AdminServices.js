@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const {Op} = require("sequelize");
 const { desc } = require("framer-motion/client");
 const TempStudent = require("../models/TempStudent");
+const Event = require("../models/Event");
 
 
 const createAdmin = async (name, email, phone, password) => {
@@ -511,6 +512,120 @@ const rejectTempStudent = async(id) => {
     }
 }
 
+const deleteIupcTeam = async (id) => {
+    try {
+        const team = await Team.findByPk(id);
+        if (!team) {
+            throw new Error("Team not found");
+        }
+        await team.destroy();
+        return { message: "Team deleted successfully" };
+    } catch (err) {
+        console.error("Error deleting IUPC team:", err);
+        throw new Error("Failed to delete IUPC team");
+    }
+}
+
+const editIupcTeam = async (id, name, member1, member2, member3, coach, rank, solved) => {
+    try {
+        const team = await Team.findByPk(id);
+        if (!team) {
+            throw new Error("Team not found");
+        }
+        team.name = name;
+        team.member1 = member1;
+        team.member2 = member2;
+        team.member3 = member3;
+        team.coach = coach;
+        team.rank = rank;
+        team.solved = solved;
+        await team.save();
+        return team;
+    } catch (err) {
+        console.error("Error editing IUPC team:", err);
+        throw new Error("Failed to edit IUPC team");
+    }
+}
+
+const addEvent = async(title, date, type, status, bgImageLink) => {
+    try{
+        if(!bgImageLink) bgImageLink = null;
+        const newEvent = await Event.create({
+            title: title,
+            date: date,
+            type: type,
+            status: status,
+            bgImageLink: bgImageLink
+        });
+        return newEvent;
+    }catch(err) {
+        console.error("Error adding event:", err);
+        throw new Error("Failed to add event");
+    }
+}
+
+const changeEventStatus = async(id, status, bgImageLink) => {
+    try{
+        const event = await Event.findByPk(id);
+        if(!event) {
+            throw new Error("Event not found");
+        }
+        event.status = status;
+        event.bgImageLink = bgImageLink || null;
+        await event.save();
+        return event;
+    }catch(err) {
+        console.error("Error changing event status:", err);
+        throw new Error("Failed to change event status");
+    }
+}
+
+const editEvent = async(id, title, date, type, status, bgImageLink) => {
+    try{
+        const event = await Event.findByPk(id);
+        if(!event) {
+            throw new Error("Event not found");
+        }
+        event.title = title;
+        event.date = date;
+        event.type = type;
+        event.status = status;
+        event.bgImageLink = bgImageLink || null;
+        await event.save();
+        return event;
+    }catch(err) {
+        console.error("Error editing event:", err);
+        throw new Error("Failed to edit event");
+    }
+}
+
+const deleteEvent = async(id) => {
+    try{
+        const event = await Event.findByPk(id);
+        if(!event) {
+            throw new Error("Event not found");
+        }
+        await event.destroy();
+        return { message: "Event deleted successfully" };
+    }catch(err) {
+        console.error("Error deleting event:", err);
+        throw new Error("Failed to delete event");
+    }
+}
+
+const allEvents = async () => {
+    try{
+        const events = await Event.findAll({
+            attributes: ['id', 'title', 'date', 'type', 'status', 'bgImageLink'],
+            order: [['date', 'DESC']]
+        });
+        return events;
+    }catch(err) {
+        console.error("Error fetching events:", err);
+        throw new Error("Failed to fetch events");
+    }
+}
+
 module.exports = {
   createAdmin,
   login,
@@ -536,5 +651,12 @@ module.exports = {
   teamsByIupcId,
   allTempStudents,
   approveStudent,
-  rejectTempStudent
+  rejectTempStudent,
+  deleteIupcTeam,
+  editIupcTeam,
+  addEvent,
+  changeEventStatus,
+  editEvent,
+  allEvents,
+  deleteEvent
 };

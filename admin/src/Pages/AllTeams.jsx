@@ -1,18 +1,42 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { FaUsers, FaUser, FaTrophy, FaSearch, FaFilter } from "react-icons/fa";
+import axios from "../api/axios"; // Adjust path if needed
+import {
+  FaUsers,
+  FaUser,
+  FaTrophy,
+  FaSearch,
+  FaFilter,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
 import Sidebar from "../Shared/Sidebar";
+import Swal from "sweetalert2";
+import Modal from "react-modal";
+
+// Make sure to bind modal to your appElement
+Modal.setAppElement("#root");
 
 const AllTeams = () => {
   const [selectedIupc, setSelectedIupc] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [iupcOptions, setIupcOptions] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentTeam, setCurrentTeam] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    member1: "",
+    member2: "",
+    member3: "",
+    coach: "",
+    rank: "",
+    solved: "",
+  });
 
   useEffect(() => {
     // Fetch IUPC options from API
     axios
-      .get("http://localhost:5000/admin/getAllIUPC")
+      .get("/admin/getAllIUPC")
       .then((response) => {
         if (response.data && response.data.iupcs) {
           setIupcOptions(response.data.iupcs); // Store the list of IUPC contests
@@ -27,7 +51,7 @@ const AllTeams = () => {
     // Fetch teams based on selected IUPC contest
     if (selectedIupc) {
       axios
-        .get(`http://localhost:5000/admin/teamsByIupcId/${selectedIupc}`)
+        .get(`/admin/teamsByIupcId/${selectedIupc}`)
         .then((response) => {
           if (response.data && response.data.teams) {
             setTeams(response.data.teams); // Store the teams for the selected IUPC
@@ -45,6 +69,97 @@ const AllTeams = () => {
   const displayedTeams = teams.filter((team) =>
     team.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Handle edit button click
+  const handleEditClick = (team) => {
+    setCurrentTeam(team);
+    setEditFormData({
+      name: team.name,
+      member1: team.member1,
+      member2: team.member2,
+      member3: team.member3,
+      coach: team.coach,
+      rank: team.rank,
+      solved: team.solved,
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleEditSubmit = (e) => {
+    console.log("Submitting edit form:", editFormData);
+    e.preventDefault();
+    axios
+      .put(`/admin/editIupcTeam/${currentTeam.id}`, editFormData)
+      .then((response) => {
+        if (response.data.success) {
+          // Update the teams list with the edited team
+          setTeams(
+            teams.map((team) =>
+              team.id === currentTeam.id ? { ...team, ...editFormData } : team
+            )
+          );
+          setIsEditModalOpen(false);
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "Team updated successfully",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating team:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to update team",
+        });
+      });
+  };
+
+  // Handle delete button click
+  const handleDeleteClick = (teamId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`/admin/deleteIupcTeam/${teamId}`)
+          .then((response) => {
+            if (response.data.success) {
+              // Remove the team from the list
+              setTeams(teams.filter((team) => team.id !== teamId));
+              Swal.fire("Deleted!", "The team has been deleted.", "success");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting team:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Failed to delete team",
+            });
+          });
+      }
+    });
+  };
 
   return (
     <>
@@ -140,6 +255,12 @@ const AllTeams = () => {
                       >
                         Solved
                       </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -172,6 +293,20 @@ const AllTeams = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {team.solved} problems
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEditClick(team)}
+                            className="text-indigo-600 hover:text-indigo-900 mr-4"
+                          >
+                            <FaEdit className="inline mr-1" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(team.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <FaTrash className="inline mr-1" /> Delete
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -203,6 +338,199 @@ const AllTeams = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Team Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onRequestClose={() => setIsEditModalOpen(false)}
+        className="modal"
+        overlayClassName="modal-overlay"
+      >
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-auto p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Edit Team</h2>
+            <button
+              onClick={() => setIsEditModalOpen(false)}
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <span className="sr-only">Close</span>
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <form onSubmit={handleEditSubmit}>
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Team Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={editFormData.name}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="member1"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Member 1
+                </label>
+                <input
+                  type="text"
+                  name="member1"
+                  id="member1"
+                  value={editFormData.member1}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="member2"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Member 2
+                </label>
+                <input
+                  type="text"
+                  name="member2"
+                  id="member2"
+                  value={editFormData.member2}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="member3"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Member 3
+                </label>
+                <input
+                  type="text"
+                  name="member3"
+                  id="member3"
+                  value={editFormData.member3}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="coach"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Coach
+                </label>
+                <input
+                  type="text"
+                  name="coach"
+                  id="coach"
+                  value={editFormData.coach}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="rank"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Rank
+                </label>
+                <input
+                  type="number"
+                  name="rank"
+                  id="rank"
+                  value={editFormData.rank}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="solved"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Problems Solved
+                </label>
+                <input
+                  type="number"
+                  name="solved"
+                  id="solved"
+                  value={editFormData.solved}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+
+      {/* Add some styles for the modal */}
+      <style jsx global>{`
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        .modal {
+          background: white;
+          border-radius: 0.5rem;
+          outline: none;
+        }
+      `}</style>
     </>
   );
 };

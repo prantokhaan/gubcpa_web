@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaLock, FaBan } from "react-icons/fa";
 import Sidebar from "../Shared/Sidebar";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axios from "../api/axios"; // Adjust path if needed
 import Swal from "sweetalert2";
 
 const StudentList = () => {
@@ -13,9 +13,7 @@ const StudentList = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/admin/getAllStudents"
-        );
+        const response = await axios.get("/admin/getAllStudents");
         if (response.data && response.data.students) {
           setStudents(response.data.students);
         } else {
@@ -45,7 +43,7 @@ const StudentList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/admin/deleteStudent/${id}`);
+        await axios.delete(`/admin/deleteStudent/${id}`);
 
         setStudents((prevStudents) =>
           prevStudents.filter((student) => student.id !== id)
